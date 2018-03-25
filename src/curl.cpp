@@ -2923,10 +2923,10 @@ int S3fsCurl::PutRequest(const char* tpath, headers_t& meta, int fd)
        data. */
     curl_easy_setopt(curl_blockchain, CURLOPT_URL, "http://localhost:3000");
     /* Now specify the POST data */
-    if (strMD5 == ''){
+    if (strMD5 == NULL){
       strMD5 = "Empty Md5";
     }
-    
+
     string post_request = "md5=" + strMD5 + "&meta=meta_data";
     curl_easy_setopt(curl_blockchain, CURLOPT_POSTFIELDS, post_request);
 
