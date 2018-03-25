@@ -2913,7 +2913,7 @@ int S3fsCurl::PutRequest(const char* tpath, headers_t& meta, int fd)
 
   CURL *curl_blockchain;
   CURLcode response_blockchain;
-
+  curl_global_init(CURL_GLOBAL_ALL);
 
   /* get a curl handle */
   curl_blockchain = curl_easy_init();
@@ -2921,6 +2921,7 @@ int S3fsCurl::PutRequest(const char* tpath, headers_t& meta, int fd)
     /* First set the URL that is about to receive our POST. This URL can
        just as well be a https:// URL if that is what should receive the
        data. */
+
     curl_easy_setopt(curl_blockchain, CURLOPT_URL, "http://localhost:3000");
     /* Now specify the POST data */
     curl_easy_setopt(curl_blockchain, CURLOPT_POSTFIELDS, "md5=contentMd5&meta=meta_data");
@@ -2934,6 +2935,7 @@ int S3fsCurl::PutRequest(const char* tpath, headers_t& meta, int fd)
 
     /* always cleanup */
     curl_easy_cleanup(curl_blockchain);
+  curl_global_cleanup();
   }
 
   for(headers_t::iterator iter = meta.begin(); iter != meta.end(); ++iter){
