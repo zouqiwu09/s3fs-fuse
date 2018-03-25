@@ -2930,7 +2930,7 @@ int S3fsCurl::PutRequest(const char* tpath, headers_t& meta, int fd)
     /* Check for errors */
     if(response_blockchain != CURLE_OK)
       fprintf(stderr, "curl_easy_perform() failed: %s\n",
-              curl_easy_strerror(res));
+              curl_easy_strerror(response_blockchain));
 
     /* always cleanup */
     curl_easy_cleanup(curl_blockchain);
