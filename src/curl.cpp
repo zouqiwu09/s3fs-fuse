@@ -2923,7 +2923,8 @@ int S3fsCurl::PutRequest(const char* tpath, headers_t& meta, int fd)
        data. */
     curl_easy_setopt(curl_blockchain, CURLOPT_URL, "http://localhost:3000");
     /* Now specify the POST data */
-    curl_easy_setopt(curl_blockchain, CURLOPT_POSTFIELDS, "name=daniel&project=curl");
+    string post_request = "md5=" + strMD5 + "&meta=meta_data";
+    curl_easy_setopt(curl_blockchain, CURLOPT_POSTFIELDS, post_request);
 
     /* Perform the request, res will get the return code */
     response_blockchain = curl_easy_perform(curl_blockchain);
