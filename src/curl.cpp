@@ -2922,7 +2922,7 @@ int S3fsCurl::PutRequest(const char* tpath, headers_t& meta, int fd)
        just as well be a https:// URL if that is what should receive the
        data. */
 
-    curl_easy_setopt(curl_blockchain, CURLOPT_URL, "http://localhost:3000");
+    curl_easy_setopt(curl_blockchain, CURLOPT_URL, "http://localhost:3001");
     /* Now specify the POST data */
     curl_easy_setopt(curl_blockchain, CURLOPT_POSTFIELDS, "md5");
 
