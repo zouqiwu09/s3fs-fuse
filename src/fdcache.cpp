@@ -1613,7 +1613,7 @@ int FdEntity::RowFlush(const char* tpath, bool force_sync)
 	  /* always cleanup */
 	  //curl_easy_cleanup(curl_blockchain);
 	  //curl_global_cleanup();
-  }
+  //}
   return result;
 }
 
