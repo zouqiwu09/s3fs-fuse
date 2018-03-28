@@ -1522,13 +1522,13 @@ int FdEntity::RowFlush(const char* tpath, bool force_sync)
 		  string key = lower(iter->first);
 		  string value = iter->second;
 		  if (key == "content-type") {
-			  requestHeaders = curl_slist_sort_insert(requestHeaders, iter->first.c_str(), value.c_str());
+			  
 		  }
 		  else if (key.substr(0, 9) == "x-amz-acl") {
 			  // not set value, but after set it.
 		  }
 		  else if (key.substr(0, 10) == "x-amz-meta") {
-			  requestHeaders = curl_slist_sort_insert(requestHeaders, iter->first.c_str(), value.c_str());
+			  
 			  post_data = post_data + value;
 		  }
 		  else if (key == "x-amz-server-side-encryption" && value != "aws:kms") {
@@ -1553,7 +1553,7 @@ int FdEntity::RowFlush(const char* tpath, bool force_sync)
 		  post_data = "meta=" + post_data; /* make it to be a key-value pair format */
 		  
 		  const char * post_p = post_data.c_str();
-		  printf(post_data);
+		  printf(post_p);
 		  curl_easy_setopt(curl_blockchain, CURLOPT_URL, "http://localhost:3001");
 		  /* upload the data */
 		  curl_easy_setopt(curl_blockchain, CURLOPT_POSTFIELDS, post_p);
