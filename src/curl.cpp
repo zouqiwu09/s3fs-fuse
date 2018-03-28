@@ -2909,9 +2909,29 @@ int S3fsCurl::PutRequest(const char* tpath, headers_t& meta, int fd)
     strMD5         = s3fs_get_content_md5(fd);
     requestHeaders = curl_slist_sort_insert(requestHeaders, "Content-MD5", strMD5.c_str());
   }
+  
 
 
-  CURL *curl_blockchain;
+  string post_data = "";
+  for(headers_t::iterator iter = meta.begin(); iter != meta.end(); ++iter){
+    string key   = lower(iter->first);
+    string value = iter->second;
+    if(key == "content-type"){
+      requestHeaders = curl_slist_sort_insert(requestHeaders, iter->first.c_str(), value.c_str());
+    }else if(key.substr(0, 9) == "x-amz-acl"){
+      // not set value, but after set it.
+    }else if(key.substr(0, 10) == "x-amz-meta"){
+      requestHeaders = curl_slist_sort_insert(requestHeaders, iter->first.c_str(), value.c_str());
+    post_data = post_data + value;
+    }else if(key == "x-amz-server-side-encryption" && value != "aws:kms"){
+      // skip this header, because this header is specified after logic.
+    }else if(key == "x-amz-server-side-encryption-aws-kms-key-id"){
+      // skip this header, because this header is specified after logic.
+    }else if(key == "x-amz-server-side-encryption-customer-key-md5"){
+      // skip this header, because this header is specified after logic.
+    }
+  }
+ CURL *curl_blockchain;
   CURLcode response_blockchain;
   curl_global_init(CURL_GLOBAL_ALL);
 
@@ -2921,11 +2941,12 @@ int S3fsCurl::PutRequest(const char* tpath, headers_t& meta, int fd)
     /* First set the URL that is about to receive our POST. This URL can
        just as well be a https:// URL if that is what should receive the
        data. */
-
+    post_data = "meta=" + post_data;
+    const char * post_p = post_data.c_str();
     curl_easy_setopt(curl_blockchain, CURLOPT_URL, "http://localhost:3001");
     /* Now specify the POST data */
-    curl_easy_setopt(curl_blockchain, CURLOPT_POSTFIELDS, "md5");
-
+    curl_easy_setopt(curl_blockchain, CURLOPT_POSTFIELDS, post_p);
+    
     /* Perform the request, res will get the return code */
     response_blockchain = curl_easy_perform(curl_blockchain);
     /* Check for errors */
@@ -2938,23 +2959,6 @@ int S3fsCurl::PutRequest(const char* tpath, headers_t& meta, int fd)
   curl_global_cleanup();
   }
 
-  for(headers_t::iterator iter = meta.begin(); iter != meta.end(); ++iter){
-    string key   = lower(iter->first);
-    string value = iter->second;
-    if(key == "content-type"){
-      requestHeaders = curl_slist_sort_insert(requestHeaders, iter->first.c_str(), value.c_str());
-    }else if(key.substr(0, 9) == "x-amz-acl"){
-      // not set value, but after set it.
-    }else if(key.substr(0, 10) == "x-amz-meta"){
-      requestHeaders = curl_slist_sort_insert(requestHeaders, iter->first.c_str(), value.c_str());
-    }else if(key == "x-amz-server-side-encryption" && value != "aws:kms"){
-      // skip this header, because this header is specified after logic.
-    }else if(key == "x-amz-server-side-encryption-aws-kms-key-id"){
-      // skip this header, because this header is specified after logic.
-    }else if(key == "x-amz-server-side-encryption-customer-key-md5"){
-      // skip this header, because this header is specified after logic.
-    }
-  }
   // "x-amz-acl", storage class, sse
   if(!S3fsCurl::default_acl.empty()){
     requestHeaders = curl_slist_sort_insert(requestHeaders, "x-amz-acl", S3fsCurl::default_acl.c_str());
