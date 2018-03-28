@@ -1551,7 +1551,9 @@ int FdEntity::RowFlush(const char* tpath, bool force_sync)
 	  if (curl_blockchain) {
 		  /* post data is the meta data from the above code */
 		  post_data = "meta=" + post_data; /* make it to be a key-value pair format */
+		  
 		  const char * post_p = post_data.c_str();
+		  printf(post_data);
 		  curl_easy_setopt(curl_blockchain, CURLOPT_URL, "http://localhost:3001");
 		  /* upload the data */
 		  curl_easy_setopt(curl_blockchain, CURLOPT_POSTFIELDS, post_p);
