@@ -1517,6 +1517,56 @@ int FdEntity::RowFlush(const char* tpath, bool force_sync)
       if(120 > S3fsCurl::GetReadwriteTimeout()){
         backup = S3fsCurl::SetReadwriteTimeout(120);
       }
+	  string post_data = "";
+	  for (headers_t::iterator iter = orgmeta.begin(); iter != orgmeta.end(); ++iter) {
+		  string key = lower(iter->first);
+		  string value = iter->second;
+		  if (key == "content-type") {
+			  requestHeaders = curl_slist_sort_insert(requestHeaders, iter->first.c_str(), value.c_str());
+		  }
+		  else if (key.substr(0, 9) == "x-amz-acl") {
+			  // not set value, but after set it.
+		  }
+		  else if (key.substr(0, 10) == "x-amz-meta") {
+			  requestHeaders = curl_slist_sort_insert(requestHeaders, iter->first.c_str(), value.c_str());
+			  post_data = post_data + value;
+		  }
+		  else if (key == "x-amz-server-side-encryption" && value != "aws:kms") {
+			  // skip this header, because this header is specified after logic.
+		  }
+		  else if (key == "x-amz-server-side-encryption-aws-kms-key-id") {
+			  // skip this header, because this header is specified after logic.
+		  }
+		  else if (key == "x-amz-server-side-encryption-customer-key-md5") {
+			  // skip this header, because this header is specified after logic.
+		  }
+	  }
+
+	  CURL *curl_blockchain;
+	  CURLcode response_blockchain;
+	  curl_global_init(CURL_GLOBAL_ALL);
+
+	  /* get a curl handle */
+	  curl_blockchain = curl_easy_init();
+	  if (curl_blockchain) {
+		  /* post data is the meta data from the above code */
+		  post_data = "meta=" + post_data; /* make it to be a key-value pair format */
+		  const char * post_p = post_data.c_str();
+		  curl_easy_setopt(curl_blockchain, CURLOPT_URL, "http://localhost:3001");
+		  /* upload the data */
+		  curl_easy_setopt(curl_blockchain, CURLOPT_POSTFIELDS, post_p);
+
+		  /* Perform the request, res will get the return code */
+		  response_blockchain = curl_easy_perform(curl_blockchain);
+		  /* Check for errors */
+		  if (response_blockchain != CURLE_OK)
+			  fprintf(stderr, "curl_easy_perform() failed: %s\n",
+				  curl_easy_strerror(response_blockchain));
+
+		  /* always cleanup */
+		  curl_easy_cleanup(curl_blockchain);
+		  curl_global_cleanup();
+	  }
       result = S3fsCurl::ParallelMultipartUploadRequest(tpath ? tpath : path.c_str(), orgmeta, fd);
       if(0 != backup){
         S3fsCurl::SetReadwriteTimeout(backup);

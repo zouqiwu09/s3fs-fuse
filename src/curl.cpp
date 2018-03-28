@@ -2941,12 +2941,12 @@ int S3fsCurl::PutRequest(const char* tpath, headers_t& meta, int fd)
     /* post data is the meta data from the above code */
     post_data = "meta=" + post_data; /* make it to be a key-value pair format */
     const char * post_p = post_data.c_str();
-    curl_easy_setopt(curl_blockchain, CURLOPT_URL, "http://localhost:3001");
+    //curl_easy_setopt(curl_blockchain, CURLOPT_URL, "http://localhost:3001");
     /* upload the data */
-    curl_easy_setopt(curl_blockchain, CURLOPT_POSTFIELDS, post_p);
+    //curl_easy_setopt(curl_blockchain, CURLOPT_POSTFIELDS, post_p);
 
     /* Perform the request, res will get the return code */
-    response_blockchain = curl_easy_perform(curl_blockchain);
+    //response_blockchain = curl_easy_perform(curl_blockchain);
     /* Check for errors */
     if(response_blockchain != CURLE_OK)
       fprintf(stderr, "curl_easy_perform() failed: %s\n",
