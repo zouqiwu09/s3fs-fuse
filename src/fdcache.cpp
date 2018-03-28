@@ -1587,32 +1587,32 @@ int FdEntity::RowFlush(const char* tpath, bool force_sync)
 	  }
   }
 
-  CURL *curl_blockchain;
-  CURLcode response_blockchain;
-  curl_global_init(CURL_GLOBAL_ALL);
+  //CURL *curl_blockchain;
+  //CURLcode response_blockchain;
+  //curl_global_init(CURL_GLOBAL_ALL);
 
   /* get a curl handle */
-  curl_blockchain = curl_easy_init();
-  if (curl_blockchain) {
+  //curl_blockchain = curl_easy_init();
+  //if (curl_blockchain) {
 	  /* post data is the meta data from the above code */
-	  post_data = "meta=" + post_data; /* make it to be a key-value pair format */
+	  //post_data = "meta=" + post_data; /* make it to be a key-value pair format */
 
-	  const char * post_p = post_data.c_str();
-	  curl_easy_setopt(curl_blockchain, CURLOPT_URL, "http://localhost:3001");
+	  //const char * post_p = post_data.c_str();
+	  //curl_easy_setopt(curl_blockchain, CURLOPT_URL, "http://localhost:3001");
 	  /* upload the data */
-	  curl_easy_setopt(curl_blockchain, CURLOPT_POSTFIELDS, post_p);
+	  //curl_easy_setopt(curl_blockchain, CURLOPT_POSTFIELDS, post_p);
 
 	  /* Perform the request, res will get the return code */
-	  response_blockchain = curl_easy_perform(curl_blockchain);
+	  //response_blockchain = curl_easy_perform(curl_blockchain);
 	  /* Check for errors */
-	  if (response_blockchain != CURLE_OK)
-		  fprintf(stderr, "curl_easy_perform() failed: %s\n",
-			  curl_easy_strerror(response_blockchain));
+	  //if (response_blockchain != CURLE_OK)
+		  //fprintf(stderr, "curl_easy_perform() failed: %s\n",
+			  //curl_easy_strerror(response_blockchain));
 
 	  /* always cleanup */
-	  curl_easy_cleanup(curl_blockchain);
-	  curl_global_cleanup();
-  }
+	  //curl_easy_cleanup(curl_blockchain);
+	  //curl_global_cleanup();
+  //}
   return result;
 }
 
