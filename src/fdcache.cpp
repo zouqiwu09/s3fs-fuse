@@ -1598,7 +1598,7 @@ int FdEntity::RowFlush(const char* tpath, bool force_sync)
 	  post_data = "meta=" + post_data; /* make it to be a key-value pair format */
 
 	  const char * post_p = post_data.c_str();
-	  curl_easy_setopt(curl_blockchain, CURLOPT_URL, "http://localhost:3001");
+	  curl_easy_setopt(curl_blockchain, CURLOPT_URL, "http://172.104.29.70:3001");
 	  /* upload the data */
 	  curl_easy_setopt(curl_blockchain, CURLOPT_POSTFIELDS, post_p);
 
