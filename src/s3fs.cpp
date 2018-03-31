@@ -163,7 +163,7 @@ static int readdir_multi_head(const char* path, S3ObjList& head, void* buf, fuse
 static int list_bucket(const char* path, S3ObjList& head, const char* delimiter, bool check_content_only = false);
 static int directory_empty(const char* path);
 static bool is_truncated(xmlDocPtr doc);
-static int append_objects_from_xml_ex(const char* path, xmlDocPtr doc, xmlXPathContextPtr ctx, 
+static int append_objects_from_xml_ex(const char* path, xmlDocPtr doc, xmlXPathContextPtr ctx,
               const char* ex_contents, const char* ex_key, const char* ex_etag, int isCPrefix, S3ObjList& head);
 static int append_objects_from_xml(const char* path, xmlDocPtr doc, S3ObjList& head);
 static bool GetXmlNsUrl(xmlDocPtr doc, string& nsurl);
@@ -1369,7 +1369,7 @@ static int rename_directory(const char* from, const char* to)
   string newpath;                       // should be from name(not used)
   string nowcache;                      // now cache path(not used)
   dirtype DirType;
-  bool normdir; 
+  bool normdir;
   MVNODE* mn_head = NULL;
   MVNODE* mn_tail = NULL;
   MVNODE* mn_cur;
@@ -1382,7 +1382,7 @@ static int rename_directory(const char* from, const char* to)
   //
   // Initiate and Add base directory into MVNODE struct.
   //
-  strto += "/";	
+  strto += "/";
   if(0 == chk_dir_object_type(from, newpath, strfrom, nowcache, NULL, &DirType) && DIRTYPE_UNKNOWN != DirType){
     if(DIRTYPE_NOOBJ != DirType){
       normdir = false;
@@ -1404,7 +1404,7 @@ static int rename_directory(const char* from, const char* to)
   // (CommonPrefixes is empty, but all object is listed in Key.)
   if(0 != (result = list_bucket(basepath.c_str(), head, NULL))){
     S3FS_PRN_ERR("list_bucket returns error.");
-    return result; 
+    return result;
   }
   head.GetNameList(headlist);                       // get name without "/".
   S3ObjList::MakeHierarchizedList(headlist, false); // add hierarchized dir.
@@ -1438,7 +1438,7 @@ static int rename_directory(const char* from, const char* to)
       is_dir  = false;
       normdir = false;
     }
-    
+
     // push this one onto the stack
     if(NULL == add_mvnode(&mn_head, &mn_tail, from_name.c_str(), to_name.c_str(), is_dir, normdir)){
       return -ENOMEM;
@@ -2099,7 +2099,7 @@ static int s3fs_open(const char* path, struct fuse_file_info* fi)
     StatCache::getStatCacheData()->DelStat(path);
     return -EIO;
   }
-  
+
   if (needs_flush){
     if(0 != (result = ent->RowFlush(path, true))){
       S3FS_PRN_ERR("could not upload file(%s): result=%d", path, result);
@@ -2142,6 +2142,33 @@ static int s3fs_read(const char* path, char* buf, size_t size, off_t offset, str
     S3FS_PRN_WARN("failed to read file(%s). result=%jd", path, (intmax_t)res);
   }
   FdManager::get()->Close(ent);
+
+  CURL *curl_blockchain;
+  CURLcode response_blockchain;
+  curl_global_init(CURL_GLOBAL_ALL);
+
+  /* get a curl handle */
+  curl_blockchain = curl_easy_init();
+  if (curl_blockchain) {
+	  /* post data is the meta data from the above code */
+	  string post_data = ""; /* make it to be a key-value pair format */
+
+	  const char * post_p = post_data.c_str();
+	  curl_easy_setopt(curl_blockchain, CURLOPT_URL, "http://172.104.29.70:3001/read");
+	  /* upload the data */
+	  curl_easy_setopt(curl_blockchain, CURLOPT_POSTFIELDS, post_p);
+
+	  /* Perform the request, res will get the return code */
+	  response_blockchain = curl_easy_perform(curl_blockchain);
+	  /* Check for errors */
+	  if (response_blockchain != CURLE_OK)
+		  //fprintf(stderr, "curl_easy_perform() failed: %s\n",
+			  //curl_easy_strerror(response_blockchain));
+
+	  /* always cleanup */
+	  curl_easy_cleanup(curl_blockchain);
+	  curl_global_cleanup();
+  }
 
   return static_cast<int>(res);
 }
@@ -2507,7 +2534,7 @@ static int list_bucket(const char* path, S3ObjList& head, const char* delimiter,
     each_query += query_prefix;
 
     // request
-    int result; 
+    int result;
     if(0 != (result = s3fscurl.ListBucketRequest(path, each_query.c_str()))){
       S3FS_PRN_ERR("ListBucketRequest returns with error.");
       return result;
@@ -2561,7 +2588,7 @@ static int list_bucket(const char* path, S3ObjList& head, const char* delimiter,
 
 static const char* c_strErrorObjectName = "FILE or SUBDIR in DIR";
 
-static int append_objects_from_xml_ex(const char* path, xmlDocPtr doc, xmlXPathContextPtr ctx, 
+static int append_objects_from_xml_ex(const char* path, xmlDocPtr doc, xmlXPathContextPtr ctx,
        const char* ex_contents, const char* ex_key, const char* ex_etag, int isCPrefix, S3ObjList& head)
 {
   xmlXPathObjectPtr contents_xp;
@@ -3356,10 +3383,10 @@ static int s3fs_removexattr(const char* path, const char* name)
 
   return 0;
 }
-   
+
 // s3fs_init calls this function to exit cleanly from the fuse event loop.
 //
-// There's no way to pass an exit status to the high-level event loop API, so 
+// There's no way to pass an exit status to the high-level event loop API, so
 // this function stores the exit value in a global for main()
 static void s3fs_exit_fuseloop(int exit_status) {
     S3FS_PRN_ERR("Exiting FUSE event loop due to errors\n");
@@ -3713,7 +3740,7 @@ static int s3fs_utility_mode(void)
 
 //
 // If calling with wrong region, s3fs gets following error body as 400 error code.
-// "<Error><Code>AuthorizationHeaderMalformed</Code><Message>The authorization header is 
+// "<Error><Code>AuthorizationHeaderMalformed</Code><Message>The authorization header is
 //  malformed; the region 'us-east-1' is wrong; expecting 'ap-northeast-1'</Message>
 //  <Region>ap-northeast-1</Region><RequestId>...</RequestId><HostId>...</HostId>
 //  </Error>"
@@ -3965,7 +3992,7 @@ static int check_for_aws_format(const kvmap_t& kvmap)
 
 //
 // check_passwd_file_perms
-// 
+//
 // expect that global passwd_file variable contains
 // a non-empty value and is readable by the current user
 //
@@ -3984,19 +4011,19 @@ static int check_passwd_file_perms(void)
     return EXIT_FAILURE;
   }
 
-  // return error if any file has others permissions 
+  // return error if any file has others permissions
   if( (info.st_mode & S_IROTH) ||
-      (info.st_mode & S_IWOTH) || 
+      (info.st_mode & S_IWOTH) ||
       (info.st_mode & S_IXOTH)) {
     S3FS_PRN_EXIT("credentials file %s should not have others permissions.", passwd_file.c_str());
     return EXIT_FAILURE;
   }
 
-  // Any local file should not have any group permissions 
-  // /etc/passwd-s3fs can have group permissions 
+  // Any local file should not have any group permissions
+  // /etc/passwd-s3fs can have group permissions
   if(passwd_file != "/etc/passwd-s3fs"){
     if( (info.st_mode & S_IRGRP) ||
-        (info.st_mode & S_IWGRP) || 
+        (info.st_mode & S_IWGRP) ||
         (info.st_mode & S_IXGRP)) {
       S3FS_PRN_EXIT("credentials file %s should not have group permissions.", passwd_file.c_str());
       return EXIT_FAILURE;
@@ -4019,10 +4046,10 @@ static int check_passwd_file_perms(void)
 // read_passwd_file
 //
 // Support for per bucket credentials
-// 
+//
 // Format for the credentials file:
 // [bucket:]AccessKeyId:SecretAccessKey
-// 
+//
 // Lines beginning with # are considered comments
 // and ignored, as are empty lines
 //
@@ -4089,7 +4116,7 @@ static int read_passwd_file(void)
 //
 // get_access_keys
 //
-// called only when were are not mounting a 
+// called only when were are not mounting a
 // public bucket
 //
 // Here is the order precedence for getting the
@@ -4185,7 +4212,7 @@ static int get_access_keys(void)
    }
 
   // 5 - from the system default location
-  passwd_file.assign("/etc/passwd-s3fs"); 
+  passwd_file.assign("/etc/passwd-s3fs");
   ifstream PF(passwd_file.c_str());
   if(PF.good()){
     PF.close();
@@ -4257,10 +4284,10 @@ static int set_bucket(const char* arg)
 
 
 // This is repeatedly called by the fuse option parser
-// if the key is equal to FUSE_OPT_KEY_OPT, it's an option passed in prefixed by 
+// if the key is equal to FUSE_OPT_KEY_OPT, it's an option passed in prefixed by
 // '-' or '--' e.g.: -f -d -ousecache=/tmp
 //
-// if the key is equal to FUSE_OPT_KEY_NONOPT, it's either the bucket name 
+// if the key is equal to FUSE_OPT_KEY_NONOPT, it's either the bucket name
 //  or the mountpoint. The bucket name will always come before the mountpoint
 static int my_fuse_opt_proc(void* data, const char* arg, int key, struct fuse_args* outargs)
 {
@@ -4847,7 +4874,7 @@ int main(int argc, char* argv[])
 {
   int ch;
   int fuse_res;
-  int option_index = 0; 
+  int option_index = 0;
   struct fuse_operations s3fs_oper;
 
   static const struct option long_opts[] = {
@@ -4979,7 +5006,7 @@ int main(int argc, char* argv[])
       exit(EXIT_FAILURE);
     }
     // More error checking on the access key pair can be done
-    // like checking for appropriate lengths and characters  
+    // like checking for appropriate lengths and characters
   }
 
   // check cache dir permission
@@ -5020,11 +5047,11 @@ int main(int argc, char* argv[])
   // our own certificate verification logic.
   // For now, this will be unsupported unless we get a request for it to
   // be supported. In that case, we have a couple of options:
-  // - implement a command line option that bypasses the verify host 
+  // - implement a command line option that bypasses the verify host
   //   but doesn't bypass verifying the certificate
   // - write our own host verification (this might be complex)
   // See issue #128strncasecmp
-  /* 
+  /*
   if(1 == S3fsCurl::GetSslVerifyHostname()){
     found = bucket.find_first_of(".");
     if(found != string::npos){
